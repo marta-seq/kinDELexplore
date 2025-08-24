@@ -1,27 +1,12 @@
 from abc import ABC, abstractmethod
-from rdkit import Chem
 import numpy as np
-from tqdm import tqdm
-from rdkit.Chem import AllChem
-from rdkit.Chem import Descriptors
-from rdkit.Chem.Pharm2D import Generate, Gobbi_Pharm2D
-from rdkit.Chem import MACCSkeys
-from concurrent.futures import ProcessPoolExecutor
-import multiprocessing
-from tqdm import tqdm
-from rdkit import Chem
-from rdkit.Chem import Descriptors, AllChem, DataStructs
-from rdkit.Chem.Pharm2D import Gobbi_Pharm2D, Generate
-from multiprocessing import Pool, cpu_count
-from functools import partial
-from transformers import AutoTokenizer, AutoModel
 import torch
-import numpy as np
 from tqdm import tqdm
-from abc import ABC, abstractmethod
+from transformers import AutoTokenizer, AutoModel
+from rdkit import Chem
+from rdkit.Chem import AllChem, Descriptors, MACCSkeys, DataStructs
+from rdkit.Chem.Pharm2D import Generate, Gobbi_Pharm2D
 
-from multiprocessing import Pool
-from rdkit.Chem.Pharm2D import Gobbi_Pharm2D, Generate
 
 class Featurizer(ABC):
     """Abstract base class for featurizers."""
