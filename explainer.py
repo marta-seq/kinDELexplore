@@ -5,7 +5,7 @@ import os
 import logging
 import pickle
 import torch
-
+logger = logging.getLogger(__name__)
 class Explainer:
     def __init__(self, model, X_train, model_name, save_dir, model_type="sklearn"):
         """
@@ -30,7 +30,7 @@ class Explainer:
         Compute SHAP values for the model.
         Returns SHAP values and saves them to disk.
         """
-        logging.info(f"Computing SHAP values for {self.model_name}...")
+        logger.info(f"Computing SHAP values for {self.model_name}...")
 
         # Initialize SHAP explainer based on model type
         if self.model_name in ["xgb", "rf"]:
@@ -50,18 +50,18 @@ class Explainer:
                 explainer = shap.KernelExplainer(model_predict, self.X_train[:100])  # Use a subset for background
                 shap_values = explainer.shap_values(self.X_train)
             else:
-                logging.warning(f"Unsupported model type for DNN: {self.model_type}. Skipping SHAP...")
+                logger.warning(f"Unsupported model type for DNN: {self.model_type}. Skipping SHAP...")
                 return None
 
         else:
-            logging.warning(f"SHAP not supported for {self.model_name}. Skipping...")
+            logger.warning(f"SHAP not supported for {self.model_name}. Skipping...")
             return None
 
         # Save SHAP values
         shap_values_file = os.path.join(self.save_dir, "shap_values.pkl")
         with open(shap_values_file, 'wb') as f:
             pickle.dump(shap_values, f)
-        logging.info(f"Saved SHAP values to {shap_values_file}")
+        logger.info(f"Saved SHAP values to {shap_values_file}")
 
         # Plot and save SHAP summary
         plt.figure()
@@ -69,6 +69,6 @@ class Explainer:
         shap_plot_file = os.path.join(self.save_dir, "shap_summary.png")
         plt.savefig(shap_plot_file)
         plt.close()
-        logging.info(f"Saved SHAP summary plot to {shap_plot_file}")
+        logger.info(f"Saved SHAP summary plot to {shap_plot_file}")
 
         return shap_values

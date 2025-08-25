@@ -6,7 +6,8 @@ from transformers import AutoTokenizer, AutoModel
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors, MACCSkeys, DataStructs
 from rdkit.Chem.Pharm2D import Generate, Gobbi_Pharm2D
-
+import logging
+logger = logging.getLogger(__name__)
 
 class Featurizer(ABC):
     """Abstract base class for featurizers."""
@@ -38,15 +39,21 @@ class Featurizer(ABC):
             return features, np.array(labels)
         else:
             return features
+
+class SMILESFeaturizer(Featurizer):
+    def featurize(self, mol):
+        """Return the SMILES string as a feature."""
+        return Chem.MolToSmiles(mol) if mol is not None else None
+
 class PhysChemFeaturizer(Featurizer):
     def __init__(self):
         # List of physicochemical descriptors to calculate
         self.descriptors = [
-            Descriptors.MolWt,          # Molecular weight
-            Descriptors.MolLogP,        # LogP (lipophilicity)
-            Descriptors.NumHDonors,     # Number of hydrogen bond donors
+            Descriptors.MolWt,  # Molecular weight
+            Descriptors.MolLogP,  # LogP (lipophilicity)
+            Descriptors.NumHDonors,  # Number of hydrogen bond donors
             Descriptors.NumHAcceptors,  # Number of hydrogen bond acceptors
-            Descriptors.TPSA,           # Topological polar surface area
+            Descriptors.TPSA,  # Topological polar surface area
         ]
         # Names for the descriptors (for readability)
         self.descriptor_names = [
@@ -57,24 +64,28 @@ class PhysChemFeaturizer(Featurizer):
             "TPSA",
         ]
 
-     # For parallel processing - no extra parameters needed
+        # For parallel processing - no extra parameters needed
         self._parallel_init_kwargs = {}
 
     def featurize(self, mol):
         """Calculate physicochemical descriptors for a single molecule."""
         return [desc(mol) for desc in self.descriptors]
 
+
 class PharmacophoreFeaturizer(Featurizer):
     """
     Currently slow
     """
+
     def __init__(self):
         self.factory = Gobbi_Pharm2D.factory
-       # Number of bits in the pharmacophore fingerprint
-       #  self.n_bits = self.factory.GetNumBits()
+
+    # Number of bits in the pharmacophore fingerprint
+    #  self.n_bits = self.factory.GetNumBits()
     def featurize(self, mol):
         fp = Generate.Gen2DFingerprint(mol, self.factory)
         return list(fp)
+
 
 class MACCSFeaturizer(Featurizer):
     def __init__(self):
@@ -90,14 +101,14 @@ class SubstructureCountFeaturizer(Featurizer):
     def __init__(self):
         # Define substructures using SMARTS patterns
         self.substructures = {
-            "aromatic_rings": "[a]",          # Aromatic atoms
-            "halogens": "[F,Cl,Br,I]",        # Halogens
-            "hydroxyl": "[O;H1]",             # Hydroxyl groups (-OH)
-            "amines": "[N;H2,N;H1]",          # Primary/secondary amines
+            "aromatic_rings": "[a]",  # Aromatic atoms
+            "halogens": "[F,Cl,Br,I]",  # Halogens
+            "hydroxyl": "[O;H1]",  # Hydroxyl groups (-OH)
+            "amines": "[N;H2,N;H1]",  # Primary/secondary amines
             "carboxylic_acid": "[C](=O)[O;H1]",  # Carboxylic acids
-            "ketones": "[C](=O)[C]",          # Ketones
-            "esters": "[C](=O)[O;H0]",        # Esters
-            "amides": "[C](=O)[N]",           # Amides
+            "ketones": "[C](=O)[C]",  # Ketones
+            "esters": "[C](=O)[O;H0]",  # Esters
+            "amides": "[C](=O)[N]",  # Amides
             # "nitro": "[N](=O)(=O)",  # Nitro groups
             # "cyano": "[C]#N",  # Cyano groups
         }
@@ -132,6 +143,7 @@ class MorganFeaturizer(Featurizer):
     #         return np.array(fps), np.array(df[label_col])
     #     else:
     #         return np.array(fps)
+
 
 #################### Trasnformers
 class ChemBERTaFeaturizer(Featurizer):

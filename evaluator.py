@@ -13,6 +13,9 @@ from kindel.utils.data import (
     rmse,
 )
 
+import logging
+logger = logging.getLogger(__name__)
+
 class Evaluator:
     def __init__(self, model, all_datasets):
         """
@@ -33,7 +36,7 @@ class Evaluator:
         results = {}
 
         # Internal test set
-        logging.info("Evaluating on internal test set...")
+        logger.info("Evaluating on internal test set...")
         results["test"] = self._evaluate_set(
             self.all_datasets.test.x,
             self.all_datasets.test.y,
@@ -54,7 +57,7 @@ class Evaluator:
         # In-library set ("on" and "off" conditions)
         results["lib"] = {}
         for condition in ["on", "off"]:
-            logging.info(f"Evaluating on in-library set ({condition})...")
+            logger.info(f"Evaluating on in-library set ({condition})...")
             dataset = getattr(self.all_datasets, f"inlib_{condition}")
             results["lib"][condition] = self._evaluate_set(
                 dataset.x,
@@ -70,7 +73,7 @@ class Evaluator:
         Returns a dictionary of metrics (rho, tau, rmse).
         """
         start_time = time.time()
-        logging.info(f"Predicting for {set_name}...")
+        logger.info(f"Predicting for {set_name}...")
 
         preds = self.model.predict(X)
 
@@ -79,13 +82,13 @@ class Evaluator:
         tau = kendall(preds, y)
         rmse_val = rmse(preds, y)
 
-        logging.info(
+        logger.info(
             f"Results for {set_name}: "
             f"Spearman rho = {rho:.4f}, "
             f"Kendall tau = {tau:.4f}, "
             f"RMSE = {rmse_val:.4f}"
         )
-        logging.info(f"Time to evaluate {set_name}: {time.time() - start_time:.2f} seconds")
+        logger.info(f"Time to evaluate {set_name}: {time.time() - start_time:.2f} seconds")
 
         return {
             "rho": rho,
