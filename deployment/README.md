@@ -3,25 +3,37 @@
 
 ## **System Architecture**
 
-┌─────────────┐    ┌─────────────┐    ┌─────────────────────┐
-│   User      │───▶│  API Gateway│───▶│ Model Inference     │
-└─────────────┘    └─────────────┘    │   Service           │
-                                      └─────────────────────┘
-                                          ▲
-                                          │
-                                   ┌─────────────┐
-                                   │   Data      │
-                                   │  Storage    │
-                                   │  (S3/RDS)   │
-                                   └─────────────┘
+[//]: # ()
+[//]: # (┌─────────────┐    ┌─────────────┐    ┌─────────────────────┐)
+
+[//]: # (│   User      │───▶│  API Gateway│───▶│ Model Inference     │)
+
+[//]: # (└─────────────┘    └─────────────┘    │   Service           │)
+
+[//]: # (                                      └─────────────────────┘)
+
+[//]: # (                                          ▲)
+
+[//]: # (                                          │)
+
+[//]: # (                                   ┌─────────────┐)
+
+[//]: # (                                   │   Data      │)
+
+[//]: # (                                   │  Storage    │)
+
+[//]: # (                                   │  &#40;S3/RDS&#41;   │)
+
+[//]: # (                                   └─────────────┘)
 
 ```mermaid
 flowchart TD
-    A[User CSV Input] --> B[API Gateway]
+    A[User - CSV Input] --> B[API Gateway]
     B --> C[ECS Model Inference Service]
+    E[Data Storage - S3] --> C
     C --> D[CSV Output to User]
-    C --> E[Data Storage S3]
-    C --> F[Monitoring & Logging ]
+    C --> F[Monitoring & Logging - CloudWatch]
+
 ```
 
 
