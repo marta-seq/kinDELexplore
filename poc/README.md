@@ -49,7 +49,7 @@ docker build -t chemberta_poc .
 Run predictions using the Docker container, mounting your model and data directories:
 
 ```bash
-docker run --rm \
+docker run --rm --gpus all \
   -v $(pwd)/saved_models:/app/saved_models \
   -v $(pwd)/data:/app/data \
   chemberta_poc
