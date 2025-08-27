@@ -1,12 +1,12 @@
-import logging
-import numpy as np
 import torch
+from torch.utils.data import DataLoader, TensorDataset
+from torch.cuda.amp import autocast, GradScaler
+import numpy as np
+import logging
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
-from torch.cuda.amp import GradScaler, autocast
-
 logger = logging.getLogger(__name__)
+
 class DNNModel(nn.Module):
     def __init__(self, input_dim, hidden_dim=512, dropout_prob=0.2):
         super(DNNModel, self).__init__()
@@ -42,15 +42,11 @@ class DNNModel(nn.Module):
     def forward(self, x):
         return self.layers(x)
 
-
-
 class DNNWrapper:
     def __init__(self, input_dim, layers=[128, 64], dropout=0.2, lr=1e-3,
                  batch_size=64, epochs=50, optimizer="adam",
                  weight_decay=0.0, patience=10,
                  lr_scheduler=True, lr_factor=0.5, lr_patience=5):
-        import torch.nn as nn
-        import torch.optim as optim
 
         self.input_dim = input_dim
         self.layers = layers
@@ -168,18 +164,6 @@ class DNNWrapper:
         with torch.no_grad():
             preds = self.model(X).cpu().numpy().flatten()
         return preds
-
-#
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
-from torch.cuda.amp import autocast, GradScaler
-import numpy as np
-import logging
-
-logger = logging.getLogger(__name__)
-
 
 class ChemBERTaDNNWrapper(nn.Module):
     def __init__(
@@ -451,20 +435,8 @@ class ChemBERTaDNNWrapper(nn.Module):
         self.eval()
 
         # Process predictions in batches to avoid memory issues
-        # batch_size = min(32, len(X))
         predictions = []
 
-        # with torch.no_grad():
-        #     for i in range(0, len(X), self.batch_size):
-        #         end_idx = min(i + self.batch_size, len(X))
-        #         X_batch = X[i:end_idx]
-        #
-        #         preds = self.forward(X_batch).cpu().numpy().flatten()
-        #         predictions.extend(preds)
-        #
-        #         # Clear cache after each batch
-        #         if torch.cuda.is_available():
-        #             torch.cuda.empty_cache()
         # Process in batches to avoid memory issues
         batch_size = self.batch_size
         for i in range(0, len(X), batch_size):
