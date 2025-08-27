@@ -15,12 +15,23 @@
                                    │  (S3/RDS)   │
                                    └─────────────┘
 
+```mermaid
+flowchart TD
+    A[User CSV Input] --> B[API Gateway]
+    B --> C[ECS Model Inference Service]
+    C --> D[CSV Output to User]
+    C --> E[Data Storage (S3)]
+    C --> F[Monitoring & Logging (CloudWatch)]
+```
+
+
+
 ### **Components**
 1. **User**: Sends a request with a SMILES string to the API Gateway.
 2. **API Gateway**: Receives the request and forwards it to the Model Inference Service.
 3. **Model Inference Service**: Loads the pre-trained ChemBERTaDNN model and processes the SMILES string to generate a prediction.
 4. **Data Storage**: Stores the model and any necessary data for inference, eg AWS S3. 
-5. **Monitoring**: Tracks the performance and usage of the service for maintenance and improvement.
+5. **Monitoring**: Tracks the performance and usage of the service for maintenance and improvement (e.g AWS CloudWatch). 
 
 # # Deployment Overview
 ### **Prerequisites**
@@ -40,7 +51,7 @@
    - ECS is a simple and scalable way to run Docker containers in AWS.
 
 3. **Set Up API Gateway**:
-   - Configure an API Gateway to route requests to the Model Inference Service.
+   - Configure an API Gateway to route CSV requests to the Model Inference Service.
    - Create a REST API in API Gateway.
    - Connect the API to the ECS service.
 
@@ -60,17 +71,19 @@ Reliability: AWS services are highly available and fault-tolerant.
 Cost-Effectiveness: Pay only for the resources you use.
 
 ## Example Request
-A sample request to the API Gateway might look like this:
+The service receives a CSV file with a column smiles:
+```` csv
+smiles
+CCO
+CCN
+CCC
+````
 
-```json
-{
-  "smiles": "CCO"
-}
+The service responds with predictions in a CSV format:
+```csv
+prediction
+0.85
+0.73
+0.91
 ```
-The response would contain the predicted property value:
 
-```json
-{
-  "prediction": 0.85
-}
-```
