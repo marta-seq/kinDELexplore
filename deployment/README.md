@@ -20,7 +20,7 @@ flowchart TD
     A[User CSV Input] --> B[API Gateway]
     B --> C[ECS Model Inference Service]
     C --> D[CSV Output to User]
-    C --> E[Data Storage (S3)]
+    C --> E[Data Storage S3]
     C --> F[Monitoring & Logging (CloudWatch)]
 ```
 
