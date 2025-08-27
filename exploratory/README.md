@@ -29,7 +29,6 @@ This directory contains:
 * aggregate_results: code to aggregate the results from the different runs. 
 * results/all_results.csv: aggregated results from the different runs.
 * pixi.toml - env with the dependencies used for the exploratory analysis.
-From the exploratory analysis, the ChemBERTa model with a DNN head was selected for the PoC. This model uses ChemBERTa embeddings with a 32-layer DNN head and fine-tunes the ChemBERTa embeddings.
 
 ## Results
 * XGBoost and KNN models were tested with different featurization methods and did not performed well.
