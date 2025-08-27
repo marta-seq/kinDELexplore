@@ -45,7 +45,7 @@ flowchart TD
 4. **Data Storage**: Stores the model and any necessary data for inference, eg AWS S3. 
 5. **Monitoring**: Tracks the performance and usage of the service for maintenance and improvement (e.g AWS CloudWatch). 
 
-# # Deployment Overview
+## Deployment Overview
 ### **Prerequisites**
 - AWS Account
 - Docker
@@ -73,14 +73,14 @@ flowchart TD
 5. **Testing**: 
    - Thoroughly test the deployed service to ensure it correctly processes requests and returns accurate predictions.
 
-6**Set Up Monitoring and Logging**:
+6. **Set Up Monitoring and Logging**:
    - Configure CloudWatch to monitor the API and inference service.
 
 
-Simplicity: Uses managed AWS services to minimize operational overhead.
-Scalability: ECS can automatically scale the number of containers based on demand.
-Reliability: AWS services are highly available and fault-tolerant.
-Cost-Effectiveness: Pay only for the resources you use.
+* Simplicity: Uses managed AWS services to minimize operational overhead.
+* Scalability: ECS can automatically scale the number of containers based on demand.
+* Reliability: AWS services are highly available and fault-tolerant.
+* Cost-Effectiveness: Pay only for the resources you use.
 
 ## Example Request
 The service receives a CSV file with a column smiles:
