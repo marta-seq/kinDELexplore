@@ -14,7 +14,7 @@ layer of 32 units). ChemBERTa weights are finetuned during training.
  - model.py: Definition of the ChemBERTaDNN model architecture.
  - requirements.txt: List of required Python packages. # change this to pixi!!!!
 
-## Setup
+## Setup with pixi 
 Install `pixi` (if not already installed):
 
 ```bash
@@ -38,4 +38,20 @@ To predict using the trained model, run the prediction script:
 ```
 The data to be predicted should be in a CSV file with a column named 'smiles' containing the SMILES strings.
 
+
+## Running with Docker
+
+Build the Docker image:
+
+```bash
+docker build -t chemberta_poc .
+```
+Run predictions using the Docker container, mounting your model and data directories:
+
+```bash
+docker run --rm \
+  -v $(pwd)/saved_models:/app/saved_models \
+  -v $(pwd)/data:/app/data \
+  chemberta_poc
+```
 

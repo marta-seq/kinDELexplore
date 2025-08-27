@@ -100,7 +100,7 @@ def main():
 
     # Save the model
     logger.info("Saving the model...")
-    save_chemberta_model(model, "chemberta", args.split_index, args.save_dir)
+    save_chemberta_model(model, args.split_index, args.save_dir)
 
     # Evaluate the model
     logger.info("Evaluating the model...")

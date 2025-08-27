@@ -77,7 +77,9 @@ def get_chemberta_model():
     return model, tokenizer
 def load_chemberta_model(model_file, chemberta_model, tokenizer):
     """Load a saved ChemBERTaDNNWrapper model."""
-    checkpoint = torch.load(model_file)
+    # checkpoint = torch.load(model_file)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    checkpoint = torch.load(model_file, map_location=device)
 
     # Reinitialize the model with the same hyperparameters
     model = ChemBERTaDNNWrapper(
