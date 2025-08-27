@@ -9,11 +9,9 @@ for root, dirs, files in os.walk(base_dir):
     for file in files:
         if file.startswith("results_split") and file.endswith(".json"):
             filepath = os.path.join(root, file)
-
             # Example: results/ddr1/Morgan_RF_random
             rel_path = os.path.relpath(root, base_dir)
             parts = rel_path.split(os.sep)
-
             if len(parts) != 2:
                 continue  # safety
 
