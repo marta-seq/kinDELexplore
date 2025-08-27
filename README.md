@@ -24,7 +24,8 @@ The project is structured in three parts: exploratory analysis, proof of concept
 * ChemBERTa+DNN outperformed all other models in the exploratory phase. Fine-tuning ChemBERTa embeddings gave the best performance overall.
 * On test datasets, all models performed worse than on validation sets (highlighting generalization issues).
 * The above conclusions are valid both for DDR1 and MAPK14 targets.
-
+* Leveraging pre-trained transformer embeddings can be a promising approach, as it consistently improves performance compared to traditional featurization methods.
+* However, overall predictive performance remains limited. The results indicate that the models, including ChemBERTa+DNN, still struggle to generalize to unseen compounds, especially in off-DNA test sets.
 # TODO 
 This means that levering pre trained trasnformers can get good results. 
 There is still room for improvement, as the results are not stellar.
