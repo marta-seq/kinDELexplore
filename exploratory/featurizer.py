@@ -131,20 +131,6 @@ class MorganFeaturizer(Featurizer):
         fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=self.radius, nBits=self.n_bits)
         return list(fp)
 
-    # def featurize(df, smiles_col, label_col=None):
-    #     fingerprinter = CircularFingerprint()
-    #     fps = []
-    #     for i, row in tqdm(df.iterrows(), total=len(df)):
-    #         smiles = row[smiles_col]
-    #         mol = Chem.MolFromSmiles(smiles)
-    #         fp = fingerprinter._featurize(mol)
-    #         fps.append(fp)
-    #     if label_col is not None:
-    #         return np.array(fps), np.array(df[label_col])
-    #     else:
-    #         return np.array(fps)
-
-
 #################### Trasnformers
 class ChemBERTaFeaturizer(Featurizer):
     """Featurizer for generating ChemBERTa embeddings."""
