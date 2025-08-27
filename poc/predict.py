@@ -33,8 +33,6 @@ def main():
     logger.info(f"Loading test data from {args.test_data_file}...")
     test_data = pd.read_csv(args.test_data_file)
     X_test = test_data["smiles"].tolist()
-    y_original = test_data["y"].values
-
     # Load model and make predictions
     logger.info("Loading ChemBERTa model and tokenizer...")
     chemberta_model, tokenizer = get_chemberta_model()
@@ -52,7 +50,6 @@ def main():
 
     # Create a DataFrame with true labels and predictions
     results = pd.DataFrame({
-        "true_label": y_original,
         "prediction": preds
     })
 
