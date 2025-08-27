@@ -21,7 +21,7 @@ flowchart TD
     B --> C[ECS Model Inference Service]
     C --> D[CSV Output to User]
     C --> E[Data Storage S3]
-    C --> F[Monitoring & Logging (CloudWatch)]
+    C --> F[Monitoring & Logging ]
 ```
 
 
