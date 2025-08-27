@@ -35,6 +35,7 @@ From the exploratory analysis, the ChemBERTa model with a DNN head was selected 
 * XGBoost and KNN models were tested with different featurization methods and did not performed well.
 * ChemBERTa+DNN gave the best results, particularly when fine-tuning embeddings.
 * However, no model generalized well to the test set, especially the off-DNA set.
+* None of the models outperformed the initial benchmark.
 
 Limitations:
 
