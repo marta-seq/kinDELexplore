@@ -16,6 +16,6 @@ transformers = ">=4.55.4,<5"
 redun = ">=0.22.0,<0.23"
 pyarrow = ">=13.0.0,<14"
 wandb = ">=0.17.3,<0.18"
-
+s3fs = "*"
 [pypi-dependencies]
 torch = ">=2.6"

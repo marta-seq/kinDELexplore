@@ -5,4 +5,4 @@ pandas==2.0.*
 transformers>=4.55.4,<5
 pyarrow>=13.0.0,<14
 torch>=2.0,<3
-
+s3fs == "*"
