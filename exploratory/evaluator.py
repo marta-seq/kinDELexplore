@@ -5,14 +5,16 @@ import matplotlib.pyplot as plt
 import time
 import logging
 import pickle
-from kindel.utils.data import (
-    get_training_data,
-    get_testing_data,
-    kendall,
-    spearman,
-    rmse,
-)
-
+# from kindel.utils.data import (
+#     get_training_data,
+#     get_testing_data,
+#     kendall,
+#     spearman,
+#     rmse,
+# )
+from scipy.stats import spearmanr, kendalltau
+from sklearn.metrics import mean_squared_error
+import numpy as np
 import logging
 logger = logging.getLogger(__name__)
 
@@ -77,10 +79,14 @@ class Evaluator:
 
         preds = self.model.predict(X)
 
-        # Calculate metrics
-        rho = spearman(preds, y)
-        tau = kendall(preds, y)
-        rmse_val = rmse(preds, y)
+        # # Calculate metrics
+        # rho = spearman(preds, y)
+        # tau = kendall(preds, y)
+        # rmse_val = rmse(preds, y)
+        # Calculate metrics using scipy.stats
+        rho, _ = spearmanr(preds, y)
+        tau, _ = kendalltau(preds, y)
+        rmse_val = np.sqrt(mean_squared_error(y, preds))
 
         logger.info(
             f"Results for {set_name}: "
