@@ -1,9 +1,6 @@
-import os
 import time
 import json
 import numpy as np
-import pandas as pd
-from datetime import datetime
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.model_selection import KFold
@@ -19,8 +16,6 @@ import pickle
 from evaluator import Evaluator
 import sys
 from pathlib import Path
-
-
 from kindel.utils.data import featurize
 from kindel.utils.helpers import set_seed # sets seed random np torch cuda
 from collections import namedtuple
@@ -31,13 +26,13 @@ from kindel.utils.data import (
     spearman,
     rmse,
 )
-
+import torch
+import os
 from explainer import Explainer
 from featurizer import (MACCSFeaturizer, MorganFeaturizer,
                         PhysChemFeaturizer, SubstructureCountFeaturizer,
                         ChemBERTaFeaturizer, SMILESFeaturizer)
 from dnn import DNNWrapper, ChemBERTaDNNWrapper
-import torch
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -76,8 +71,7 @@ def get_chemberta_model():
 
     return model, tokenizer
 
-import torch
-import os
+
 def save_chemberta_model(model, model_type, split_index, save_dir):
     """Save a ChemBERTaDNNWrapper model using torch.save."""
     model_file = os.path.join(save_dir, f"{model_type}_model_split{split_index}.pth")
@@ -208,8 +202,6 @@ def get_model(model_name, hyperparams=None, input_dim=None, chemberta_model=None
     elif model_name == "chemberta_dnn":
         return ChemBERTaDNNWrapper(chemberta_model=chemberta_model, tokenizer=tokenizer, **hyperparams)
 
-    elif model_name == "gin":
-        return GINWrapper(**hyperparams)
     else:
         raise ValueError(f"Unknown model: {model_name}")
 
@@ -249,29 +241,15 @@ def preprocess_all_datasets(df_train, df_valid, df_test, testing_data_heldout, t
 
 
     else:
-        # X_train, y_train = df_train["smiles"].values, df_train["y"].values
-        # X_valid, y_valid = df_valid["smiles"].values, df_valid["y"].values
-        # X_test, y_test = df_test["smiles"].values, df_test["y"].values
-        # X_heldout_on, y_heldout_on = testing_data_heldout["on"]["smiles"].values, testing_data_heldout["on"][
-        #     "y"].values
-        # X_heldout_off, y_heldout_off = testing_data_heldout["off"]["smiles"].values, testing_data_heldout["off"][
-        #     "y"].values
-        # X_inlib_on, y_inlib_on = testing_data_inlib["on"]["smiles"].values, testing_data_inlib["on"]["y"].values
-        # X_inlib_off, y_inlib_off = testing_data_inlib["off"]["smiles"].values, testing_data_inlib["off"]["y"].values
-
-        # Log original number of features
-        X_train, y_train = df_train["smiles"].values, np.log1p(df_train["y"].values)
-        X_valid, y_valid = df_valid["smiles"].values, np.log1p(df_valid["y"].values)
-        X_test, y_test = df_test["smiles"].values, np.log1p(df_test["y"].values)
-        X_heldout_on, y_heldout_on = testing_data_heldout["on"]["smiles"].values, np.log1p(
-            testing_data_heldout["on"]["y"].values)
-        X_heldout_off, y_heldout_off = testing_data_heldout["off"]["smiles"].values, np.log1p(
-            testing_data_heldout["off"]["y"].values)
-        X_inlib_on, y_inlib_on = testing_data_inlib["on"]["smiles"].values, np.log1p(
-            testing_data_inlib["on"]["y"].values)
-        X_inlib_off, y_inlib_off = testing_data_inlib["off"]["smiles"].values, np.log1p(
-            testing_data_inlib["off"]["y"].values)
-        logging.info(f"log y values")
+        X_train, y_train = df_train["smiles"].values, df_train["y"].values
+        X_valid, y_valid = df_valid["smiles"].values, df_valid["y"].values
+        X_test, y_test = df_test["smiles"].values, df_test["y"].values
+        X_heldout_on, y_heldout_on = testing_data_heldout["on"]["smiles"].values, testing_data_heldout["on"][
+            "y"].values
+        X_heldout_off, y_heldout_off = testing_data_heldout["off"]["smiles"].values, testing_data_heldout["off"][
+            "y"].values
+        X_inlib_on, y_inlib_on = testing_data_inlib["on"]["smiles"].values, testing_data_inlib["on"]["y"].values
+        X_inlib_off, y_inlib_off = testing_data_inlib["off"]["smiles"].values, testing_data_inlib["off"]["y"].values
 
         # Organize data for ChemBERTaDNN
         AllDatasets = namedtuple("AllDatasets",
@@ -388,8 +366,6 @@ def run_pipeline(featurizer_name,split_type,
         )
 
         # RUN MODEL --- CHECK DIFFERENCES BETWEEN XGB KNN DNN ...
-        # model = RandomForestRegressor(n_jobs=-1, n_estimators=100, criterion='squared_error',
-        #                               max_features='sqrt', )  # n_estimators=100, *, criterion='squared_error',
         time_preprocess = time.time()
         if model_type == "dnn":
             input_dim = data.train.x.shape[1]  # Number of features
@@ -417,10 +393,6 @@ def run_pipeline(featurizer_name,split_type,
             model.fit(data.train.x, data.train.y, X_valid=data.valid.x, y_valid=data.valid.y)
             save_chemberta_model(model, model_type, split_index, save_dir)
 
-        # elif model_type == "gnn":
-        #     model = get_model(model_name,)
-        #     model.fit(data.train.x, data.train.y, X_valid=data.valid.x, y_valid=data.valid.y)
-
         else:
             model = get_model(model_type, hyperparams=hyperparams)
             model.fit(data.train.x, data.train.y)
@@ -441,9 +413,6 @@ def run_pipeline(featurizer_name,split_type,
         with open(results_file, "w") as f:
             json.dump(results, f, indent=4)
         logging.info(f"Saved results to {results_file}")
-
-        # # Save the model
-
 
         # SHAP analusis
         shap_time = time.time()
@@ -496,51 +465,45 @@ if __name__ == "__main__":
 
     RUNS = [
         # # Format: (target, split_type, featurizer, scale, feat_sel, model_type, hyperparams, explain)
-        # ("ddr1", "random", "substructure", True, False, "xgb", {"n_estimators": 100}, True),
-        # ("ddr1", "random", "substructure", True, False, "knn", {"n_neighbors": 5}, False),
-        # ("ddr1", "random", "physchem", True, False, "xgb", {"n_estimators": 100}, True),
-        # ("ddr1", "random", "physchem", True, False, "knn", {"n_neighbors": 5}, False),
-        # ("ddr1", "random", "chemberta", False, False, "xgb", {"n_estimators": 100}, False),
-        # ("ddr1", "random", "chemberta", False, False, "knn", {"n_neighbors": 5}, False),
-        # ("ddr1", "random", "maccs", True, False, "xgb", {"n_estimators": 100}, True),
-        # ("ddr1", "random", "maccs", True, False, "knn", {"n_neighbors": 5}, False),
-        # # # ("ddr1", "random", "morgan", True, True, "xgb", {"n_estimators": 100}, False),
-        # # # ("ddr1", "random", "morgan", True, True, "knn", {"n_neighbors": 5}, False),
-        #
-        # ("ddr1", "random", "substructure", True, False, "dnn", dnn_hyperparams, True),
-        # ("ddr1", "random", "physchem", True, False, "dnn", dnn_hyperparams, True),
-        # ("ddr1", "random", "chemberta", False, False, "dnn", dnn_hyperparams, False),
-        # ("ddr1", "random", "maccs", True, False, "dnn", dnn_hyperparams, True),
-        # # ("ddr1", "random", "morgan", True, False, "dnn", dnn_hyperparams, False),
-        #
-        # # ChEMBERT fine tune
+        ("ddr1", "random", "substructure", True, False, "xgb", {"n_estimators": 100}, True),
+        ("ddr1", "random", "substructure", True, False, "knn", {"n_neighbors": 5}, False),
+        ("ddr1", "random", "physchem", True, False, "xgb", {"n_estimators": 100}, True),
+        ("ddr1", "random", "physchem", True, False, "knn", {"n_neighbors": 5}, False),
+        ("ddr1", "random", "chemberta", False, False, "xgb", {"n_estimators": 100}, False),
+        ("ddr1", "random", "chemberta", False, False, "knn", {"n_neighbors": 5}, False),
+        ("ddr1", "random", "maccs", True, False, "xgb", {"n_estimators": 100}, True),
+        ("ddr1", "random", "maccs", True, False, "knn", {"n_neighbors": 5}, False),
+        # ("ddr1", "random", "morgan", True, True, "xgb", {"n_estimators": 100}, False),
+        # # ("ddr1", "random", "morgan", True, True, "knn", {"n_neighbors": 5}, False),
+        ("ddr1", "random", "substructure", True, False, "dnn", dnn_hyperparams, True),
+        ("ddr1", "random", "physchem", True, False, "dnn", dnn_hyperparams, True),
+        ("ddr1", "random", "chemberta", False, False, "dnn", dnn_hyperparams, False),
+        ("ddr1", "random", "maccs", True, False, "dnn", dnn_hyperparams, True),
+        # ("ddr1", "random", "morgan", True, False, "dnn", dnn_hyperparams, False),
+        # ChEMBERT fine tune
         ("ddr1", "random", None, False, False, "chemberta_dnn", chemberta_hyperparams, False),
 
-        #
-        # # MAPK14
-        # ("mapk14", "random", "substructure", True, False, "xgb", {"n_estimators": 100}, True),
-        # ("mapk14", "random", "substructure", True, False, "knn", {"n_neighbors": 5}, False),
-        # ("mapk14", "random", "physchem", True, False, "xgb", {"n_estimators": 100}, True),
-        # ("mapk14", "random", "physchem", True, False, "knn", {"n_neighbors": 5}, False),
-        # ("mapk14", "random", "chemberta", False, False, "xgb", {"n_estimators": 100}, False),
-        # ("mapk14", "random", "chemberta", False, False, "knn", {"n_neighbors": 5}, False),
-        # ("mapk14", "random", "maccs", True, False, "xgb", {"n_estimators": 100}, True),
-        # ("mapk14", "random", "maccs", True, False, "knn", {"n_neighbors": 5}, False),
-        #
-        # # Format: (target, split_type, featurizer, scale, feat_sel, model_type, hyperparams, explain)
-        # ("mapk14", "random", "substructure", True, True, "dnn", dnn_hyperparams, True),
-        # ("mapk14", "random", "physchem", True, True, "dnn", dnn_hyperparams, True),
-        # ("mapk14", "random", "chemberta", False, False, "dnn", dnn_hyperparams, False),
-        # ("mapk14", "random", "maccs", True, True, "dnn", dnn_hyperparams, False),
-        # # ("mapk14", "random", "morgan", True, True, "dnn", dnn_hyperparams, False),
+        # MAPK14
+        ("mapk14", "random", "substructure", True, False, "xgb", {"n_estimators": 100}, True),
+        ("mapk14", "random", "substructure", True, False, "knn", {"n_neighbors": 5}, False),
+        ("mapk14", "random", "physchem", True, False, "xgb", {"n_estimators": 100}, True),
+        ("mapk14", "random", "physchem", True, False, "knn", {"n_neighbors": 5}, False),
+        ("mapk14", "random", "chemberta", False, False, "xgb", {"n_estimators": 100}, False),
+        ("mapk14", "random", "chemberta", False, False, "knn", {"n_neighbors": 5}, False),
+        ("mapk14", "random", "maccs", True, False, "xgb", {"n_estimators": 100}, True),
+        ("mapk14", "random", "maccs", True, False, "knn", {"n_neighbors": 5}, False),
+        ("mapk14", "random", "substructure", True, True, "dnn", dnn_hyperparams, True),
+        ("mapk14", "random", "physchem", True, True, "dnn", dnn_hyperparams, True),
+        ("mapk14", "random", "chemberta", False, False, "dnn", dnn_hyperparams, False),
+        ("mapk14", "random", "maccs", True, True, "dnn", dnn_hyperparams, False),
+        # ("mapk14", "random", "morgan", True, True, "dnn", dnn_hyperparams, False),
         ("mapk14", "random", None, False, False, "chemberta_dnn", chemberta_hyperparams, False),
-
     ]
 
     for run in RUNS:
         target, split_type, featurizer, scale, feat_sel, model_type, hyperparams, explain = run
         # Create a unique save directory for this run
-        save_dir = f'results/{target}/{featurizer}_{model_type}_{split_type}_LOGP/'
+        save_dir = f'results/{target}/{featurizer}_{model_type}_{split_type}/'
         os.makedirs(save_dir, exist_ok=True)
         log_file = os.path.join(save_dir, 'log.txt')
         setup_logging(log_file)  # Call this before any logging
