@@ -6,7 +6,7 @@ The project is structured in three parts: exploratory analysis, proof of concept
 ## Structure of the repository
 1. exploratory/
     * Exploratory analysis of different featurization methods and models.
-    * Only DDR1 data from random split 1 is used.
+    * Only data from random split 1 is used.
     * Splitting, evaluation, and metrics follow the Kindel paper.
     * From this analysis, the ChemBERTa+DNN model (ChemBERTa embeddings + 32-unit DNN head, fine-tuned) was selected for the PoC.
 
@@ -26,13 +26,10 @@ The project is structured in three parts: exploratory analysis, proof of concept
 * The above conclusions are valid both for DDR1 and MAPK14 targets.
 * Leveraging pre-trained transformer embeddings can be a promising approach, as it consistently improves performance compared to traditional featurization methods.
 * However, overall predictive performance remains limited. The results indicate that the models, including ChemBERTa+DNN, still struggle to generalize to unseen compounds, especially in off-DNA test sets.
-# TODO 
-This means that levering pre trained trasnformers can get good results. 
-There is still room for improvement, as the results are not stellar.
 
 * Limitations:
     * No hyperparameter tuning or extensive architecture search was performed.
-    * Limited to a subset of the dataset (DDR1, split 1).
+    * Limited to a subset of the dataset (random split 1).
 
 * Opportunities for improvement:
   * Explore different architectures and hyperparameters.
